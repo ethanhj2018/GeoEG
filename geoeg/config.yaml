@@ -1,0 +1,73 @@
+# GeoEG 运行配置。API key 不写在这里，放 .env（见 .env.example）。
+MODE: local            # local：本地 vLLM；hybrid：云端 OpenAI 兼容 API（需要 .env 里的 key）
+output_language: en    # en | zh：线索描述、结论、总结、解释、OCR 线索描述的语言（检测词始终是英文）
+
+vlm:
+  local:
+    base_url: http://127.0.0.1:8001/v1     # scripts/start_vllm.sh 起的服务
+    model: qwen2.5-vl-7b-awq
+  hybrid:                                   # 三项都从 .env 读
+    base_url_env: GEOEG_API_BASE
+    model_env: GEOEG_API_MODEL
+    api_key_env: GEOEG_API_KEY
+  max_side: 1280         # 发给 VLM 前把长边缩到这个像素（vLLM 侧另有 max_pixels=1003520）
+  max_tokens: 1800
+  timeout_s: 300
+
+models:
+  gdino: IDEA-Research/grounding-dino-base
+  gdino_box_threshold: 0.30
+  gdino_text_threshold: 0.25
+  sam2: facebook/sam2.1-hiera-small
+  g3_repo: ~/geoeg_refs/G3                  # 只 import 引用，不拷代码
+  g3_ckpt: ~/geoeg_refs/checkpoints/g3.pth
+
+ocr:
+  conda: ~/miniconda3/bin/conda
+  env: geoeg-ocrtest                        # PaddleOCR 只装在这个环境，geoeg 里不装 paddle
+  det_model: PP-OCRv6_medium_det
+  rec_model: PP-OCRv6_medium_rec
+  min_score: 0.8
+  timeout_s: 180
+
+gpu:
+  budget_mib: 14336      # 整卡显存上限（含 vLLM），超了会在日志里告警
+
+switches:
+  detect: true
+  segment: true
+  ocr: true
+  geocode: true          # Nominatim（限速 + 缓存）
+  driving_side: true     # geo-sleuth clues.py 查左/右行国家表（离线）
+  overpass: false        # OSM Overpass 查证，默认关；开了也会限速 + 缓存
+  geoclip: true
+  g3: true
+  contradict_edges: true
+
+geocode:
+  endpoint: https://nominatim.openstreetmap.org
+  user_agent: GeoEG-research-prototype/0.1
+  contact_env: GEOEG_CONTACT_EMAIL         # 可选，填了会加到 Nominatim 请求的 email 参数
+  min_interval_s: 1.1                      # Nominatim 政策：≤1 次/秒
+
+overpass:
+  min_interval_s: 5.0
+
+candidates:
+  geoclip_top_k: 20
+  vlm_top_k: 5
+  merge_km: 25
+  rescore_top_n: 10      # 反向地理编码 + 国家级线索复核的候选数
+  output_top_k: 5
+
+scoring:
+  w_clues: 1.0           # Σ 权重×置信度×是否在线索范围内
+  w_contradict: 0.5      # 矛盾惩罚系数（候选落在线索范围外）
+  w_g3: 2.0              # G3 相似度（候选间 min-max 归一化）
+  w_geoclip: 2.0         # GeoCLIP 相似度（同上）
+  w_vlm: 1.0             # VLM 直接给出的候选的先验
+
+paths:
+  runs: runs
+  cache: .cache/geoeg_cache.sqlite
+  geosleuth_cache: .cache/geosleuth

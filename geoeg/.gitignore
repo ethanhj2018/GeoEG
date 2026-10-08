@@ -1,0 +1,23 @@
+# 密钥
+.env
+
+# 运行产物与缓存
+runs/
+.cache/
+*.sqlite
+*.sqlite3
+__pycache__/
+*.pyc
+.pytest_cache/
+.geo-cache/
+
+# 模型权重与 checkpoints（统一放 WSL 的 ~/models、~/geoeg_refs/checkpoints、HF 缓存，不进仓库）
+checkpoints/
+models/
+*.pth
+*.pt
+*.safetensors
+*.bin
+*.onnx
+*.index
+*.pdparams

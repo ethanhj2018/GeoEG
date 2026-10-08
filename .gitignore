@@ -1,0 +1,43 @@
+# 密钥与本地配置
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# 模型权重与 checkpoints
+*.pth
+*.pt
+*.safetensors
+*.bin
+*.onnx
+*.ckpt
+*.pdparams
+checkpoints/
+models/
+
+# HF / pip / 其他缓存
+.cache/
+.huggingface/
+hf_cache/
+.pip-cache/
+pip-cache/
+__pycache__/
+*.pyc
+.pytest_cache/
+.geo-cache/
+*.sqlite
+*.sqlite3
+
+# 运行产物与上传
+runs/
+geoeg/runs/
+web/uploads/
+logs/
+*.log
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

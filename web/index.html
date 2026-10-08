@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoEG Image Geolocation</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --fg:#1d2330; --muted:#6b7280; --line:#e3e6eb; --accent:#2f6fec; --err:#c0392b; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; background:var(--bg); color:var(--fg); }
+  header { padding:16px 24px; border-bottom:1px solid var(--line); background:var(--card); display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  header h1 { font-size:18px; margin:0; }
+  #status { font-size:13px; color:var(--muted); margin-left:auto; }
+  #status .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#aaa; margin-right:6px; }
+  main { display:grid; grid-template-columns:minmax(300px,1fr) minmax(300px,1fr); gap:16px; padding:16px 24px; max-width:1400px; margin:0 auto; }
+  @media (max-width:800px){ main { grid-template-columns:1fr; padding:16px; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; min-width:0; }
+  .wide { grid-column:1 / -1; }
+  #drop { border:2px dashed var(--line); border-radius:10px; min-height:340px; display:flex; align-items:center; justify-content:center;
+          text-align:center; color:var(--muted); cursor:pointer; position:relative; overflow:hidden; }
+  #drop.over { border-color:var(--accent); background:#eef3fe; }
+  #drop img { max-width:100%; max-height:520px; display:block; }
+  button { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:10px 18px; font-size:15px; cursor:pointer; margin-top:12px; }
+  button:disabled { opacity:.5; cursor:default; }
+  select { font:inherit; font-size:13px; padding:4px 6px; border:1px solid var(--line); border-radius:6px; background:var(--card); max-width:260px; }
+  #map { height:340px; border-radius:8px; margin-top:12px; }
+  .place { font-size:22px; font-weight:600; margin:0 0 4px; }
+  .coords { font-family:ui-monospace,Consolas,monospace; color:var(--muted); }
+  .badge { display:inline-block; font-size:12px; padding:2px 8px; border-radius:10px; background:#eef3fe; color:var(--accent); margin-left:8px; vertical-align:middle; }
+  .muted { color:var(--muted); font-size:13px; }
+  .err { color:var(--err); }
+  .top5 { padding-left:20px; margin:8px 0; font-size:14px; }
+  .top5 li { margin:2px 0; }
+  .top5 .s { color:var(--muted); font-family:ui-monospace,Consolas,monospace; font-size:12px; }
+  details pre { white-space:pre-wrap; font-size:12px; background:var(--bg); padding:8px; border-radius:6px; }
+
+  /* clue segmentation panel */
+  .seg-head { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:12px; }
+  .seg-head h2 { font-size:16px; margin:0; }
+  .seg-head label { font-size:13px; color:var(--muted); display:flex; align-items:center; gap:4px; }
+  .seg { display:grid; grid-template-columns:minmax(0,3fr) minmax(260px,2fr); gap:16px; align-items:start; }
+  @media (max-width:900px){ .seg { grid-template-columns:1fr; } }
+  .stage { position:relative; line-height:0; background:#111; border-radius:8px; overflow:hidden; }
+  .stage img { width:100%; height:auto; display:block; }
+  .stage svg { position:absolute; inset:0; width:100%; height:100%; }
+  .stage .region { cursor:pointer; transition:opacity .15s; }
+  .stage.focus .region { opacity:.15; }
+  .stage.focus .region.on { opacity:1; }
+  .stage text { font-weight:600; font-family:system-ui,sans-serif; paint-order:stroke; stroke:#000; stroke-width:3px; fill:#fff; }
+  .hide-masks .maskfill, .hide-boxes .boxline, .hide-labels .tag { display:none; }
+  .clues { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px; max-height:620px; overflow:auto; }
+  .clue { border:1px solid var(--line); border-left:6px solid var(--c); border-radius:8px; padding:8px 10px; display:flex; gap:10px; cursor:pointer; }
+  .clue.on { background:#f2f6ff; border-color:var(--c); }
+  .clue .num { flex:none; width:22px; height:22px; border-radius:50%; background:var(--c); color:#fff; font-size:12px; font-weight:700;
+               display:flex; align-items:center; justify-content:center; }
+  .clue .body { min-width:0; flex:1; }
+  .clue .desc { font-weight:600; font-size:14px; }
+  .clue .meta { font-size:12px; color:var(--muted); margin-top:2px; }
+  .clue .concl { font-size:13px; margin-top:4px; }
+  .clue .ocr { font-family:ui-monospace,Consolas,monospace; font-size:12px; background:var(--bg); padding:2px 6px; border-radius:4px; margin-top:4px; display:inline-block; }
+  .clue img { flex:none; width:64px; height:64px; object-fit:cover; border-radius:6px; }
+  .cat { display:inline-block; font-size:11px; text-transform:uppercase; letter-spacing:.04em; padding:1px 6px; border-radius:4px; background:var(--bg); color:var(--fg); margin-right:6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>GeoEG Image Geolocation</h1>
+  <label class="muted">Engine:
+    <select id="engine">
+      <option value="geoeg">GeoEG pipeline</option>
+      <option value="baseline">7B baseline (direct VLM)</option>
+    </select>
+  </label>
+  <label class="muted">View past run:
+    <select id="runs"><option value="">(none)</option></select>
+  </label>
+  <span id="status"><span class="dot"></span>Checking model status…</span>
+</header>
+<main>
+  <section class="card">
+    <div id="drop">Drag an image here, or click to choose a file<br>(you can also paste with Ctrl+V)</div>
+    <input type="file" id="file" accept="image/*" hidden>
+    <button id="go" disabled>Locate</button>
+    <span id="msg" class="muted"></span>
+  </section>
+  <section class="card">
+    <div id="result" class="muted">Results will appear here.</div>
+    <div id="map"></div>
+  </section>
+  <section class="card wide" id="segcard" hidden>
+    <div class="seg-head">
+      <h2>Clue segmentation</h2>
+      <span id="segsrc" class="muted"></span>
+      <label><input type="checkbox" id="optMasks" checked> Masks</label>
+      <label><input type="checkbox" id="optBoxes" checked> Boxes</label>
+      <label><input type="checkbox" id="optLabels" checked> Labels</label>
+    </div>
+    <div class="seg">
+      <div class="stage" id="stage"><img id="segimg" alt=""><svg id="overlay" preserveAspectRatio="none"></svg></div>
+      <ol class="clues" id="cluelist"></ol>
+    </div>
+  </section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const drop = $('drop'), fileIn = $('file'), go = $('go'), msg = $('msg'), out = $('result');
+let current = null, currentUrl = null, markers = [], map = null;
+
+if (window.L) {
+  map = L.map('map').setView([20, 0], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
+} else {
+  $('map').innerHTML = '<p class="muted">Map library failed to load (internet required); coordinates will still be shown.</p>';
+}
+
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const confEn = { high: 'High', medium: 'Medium', low: 'Low' };
+const COLORS = ['#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', '#42d4f4', '#f032e6', '#bfef45', '#469990', '#9a6324'];
+
+async function checkHealth() {
+  const s = $('status');
+  try {
+    const r = await (await fetch('/api/health')).json();
+    s.innerHTML = `<span class="dot" style="background:${r.model_ready ? '#2ecc71' : '#e67e22'}"></span>` +
+      (r.model_ready ? `Model ready: ${r.model}` : 'Model not ready, start vLLM first');
+  } catch { s.innerHTML = '<span class="dot" style="background:#c0392b"></span>Backend not connected'; }
+}
+checkHealth(); setInterval(checkHealth, 10000);
+
+async function loadRuns() {
+  try {
+    const runs = await (await fetch('/api/runs')).json();
+    $('runs').innerHTML = '<option value="">(none)</option>' + runs.map(r => `<option>${esc(r)}</option>`).join('');
+  } catch {}
+}
+loadRuns();
+
+function setFile(f) {
+  if (!f || !f.type.startsWith('image/')) { msg.textContent = 'Please choose an image file'; return; }
+  current = f;
+  if (currentUrl) URL.revokeObjectURL(currentUrl);
+  currentUrl = URL.createObjectURL(f);
+  drop.innerHTML = `<img src="${currentUrl}" alt="">`;
+  go.disabled = false; msg.textContent = f.name;
+}
+drop.onclick = () => fileIn.click();
+fileIn.onchange = () => setFile(fileIn.files[0]);
+drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+drop.ondragleave = () => drop.classList.remove('over');
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); setFile(e.dataTransfer.files[0]); };
+document.onpaste = e => { const it = [...e.clipboardData.items].find(i => i.type.startsWith('image/')); if (it) setFile(it.getAsFile()); };
+
+function showResult(d) {
+  const parts = [d.place, d.city, d.region, d.country].filter(Boolean);
+  const name = parts.filter((p, i) => !parts.slice(0, i).some(q => q.includes(p))).join(', ');
+  const hasLL = d.latitude != null && d.longitude != null;
+  const conf = d.confidence ? `<span class="badge">Confidence: ${esc(confEn[d.confidence] || d.confidence)}</span>` : '';
+  out.innerHTML = `
+    <p class="place">${esc(name) || 'Unknown location'}${conf}</p>
+    <div class="coords">${hasLL ? `${d.latitude.toFixed(4)}, ${d.longitude.toFixed(4)}` : 'No coordinates'}</div>
+    ${d.reasoning ? `<p>${esc(d.reasoning)}</p>` : ''}
+    ${d.top5?.length > 1 ? `<p><b>Top-5 candidates</b></p><ol class="top5">${d.top5.map(c =>
+      `<li>${esc(c.name) || `${c.lat.toFixed(3)}, ${c.lon.toFixed(3)}`} <span class="s">score ${(c.score ?? 0).toFixed(2)}</span></li>`).join('')}</ol>` : ''}
+    ${d.explanations?.length ? `<details><summary class="muted">Explanation of #1</summary><p>${esc(d.explanations[0])}</p></details>` : ''}
+    <p class="muted">${d.source === 'geoeg' ? `GeoEG run ${esc(d.run)} · ` : ''}${esc(d.model)} · ${(d.elapsed_ms / 1000).toFixed(1)} s</p>
+    <details><summary class="muted">Raw model output</summary><pre>${esc(d.raw)}</pre></details>`;
+  if (map) {
+    markers.forEach(m => m.remove()); markers = [];
+    (d.top5 || []).slice(1).forEach((c, i) => markers.push(
+      L.circleMarker([c.lat, c.lon], { radius: 7, color: '#6b7280', weight: 2, fillOpacity: .5 })
+        .addTo(map).bindPopup(`#${i + 2} ${esc(c.name)}`)));
+    if (hasLL) {
+      markers.push(L.marker([d.latitude, d.longitude]).addTo(map).bindPopup(esc(name)).openPopup());
+      map.setView([d.latitude, d.longitude], 10);
+    }
+  }
+}
+
+// ---- clue segmentation panel: each clue's region (mask if available, else box) numbered on the image ----
+function showClues(d, imgSrc) {
+  const card = $('segcard'), svg = $('overlay'), list = $('cluelist'), clues = d.clues || [];
+  if (!clues.length) { card.hidden = true; return; }
+  card.hidden = false;
+  const [W, H] = d.image_size;
+  const located = clues.filter(c => c.bbox).length, masked = clues.filter(c => c.mask).length;
+  $('segsrc').textContent = (d.source === 'geoeg' ? 'GeoEG pipeline' : `${d.model}, boxes only`) +
+    ` · ${clues.length} clue${clues.length > 1 ? 's' : ''}, ${located} located` + (masked ? `, ${masked} with masks` : '');
+  $('segimg').src = imgSrc;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const fs = Math.max(12, Math.round(Math.max(W, H) / 45));
+  let defs = '', shapes = '';
+  clues.forEach((c, i) => { c._color = COLORS[i % COLORS.length]; c._i = i; });
+  const area = b => (b[2] - b[0]) * (b[3] - b[1]);
+  // largest regions first so small ones (signs, plates) stay on top and hoverable
+  [...clues].filter(c => c.bbox).sort((a, b) => area(b.bbox) - area(a.bbox)).forEach(c => {
+    const i = c._i, col = c._color;
+    const [x0, y0, x1, y1] = c.bbox, ty = Math.max(0, y0 - fs * 1.4);
+    let fill;
+    if (c.mask) {
+      defs += `<mask id="m${i}" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}">` +
+              `<image href="${esc(c.mask)}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="none"/></mask>`;
+      fill = `<rect class="maskfill" x="0" y="0" width="${W}" height="${H}" fill="${col}" fill-opacity=".5" mask="url(#m${i})"/>`;
+    } else {
+      fill = `<rect class="maskfill" x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" fill="${col}" fill-opacity=".18"/>`;
+    }
+    shapes += `<g class="region" data-i="${i}">${fill}
+      <rect class="boxline" x="${x0}" y="${y0}" width="${x1 - x0}" height="${y1 - y0}" fill="none" stroke="${col}"
+            stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+      <g class="tag"><rect x="${x0}" y="${ty}" width="${fs * 1.6}" height="${fs * 1.4}" fill="${col}"/>
+      <text x="${x0 + fs * 0.8}" y="${ty + fs * 1.05}" text-anchor="middle" style="font-size:${fs}px">${i + 1}</text></g></g>`;
+  });
+  svg.innerHTML = `<defs>${defs}</defs>${shapes}`;
+  list.innerHTML = clues.map((c, i) => {
+    const conf = typeof c.confidence === 'number' ? ` · confidence ${Math.round(c.confidence * 100)}%` : '';
+    const where = c.bbox ? '' : ' · whole image';
+    return `<li class="clue" data-i="${i}" style="--c:${c._color}">
+      <span class="num">${i + 1}</span>
+      <div class="body">
+        <div class="desc">${esc(c.description) || '(no description)'}</div>
+        <div class="meta"><span class="cat">${esc(c.category)}</span>${esc((c.sources || []).join(', '))}${conf}${where}</div>
+        ${c.conclusion ? `<div class="concl">→ ${esc(c.conclusion)}</div>` : ''}
+        ${c.text ? `<div class="ocr">${esc(c.text)}</div>` : ''}
+      </div>
+      ${c.crop ? `<img src="${esc(c.crop)}" alt="">` : ''}
+    </li>`;
+  }).join('');
+}
+
+function focusClue(i) {
+  $('stage').classList.toggle('focus', i != null);
+  document.querySelectorAll('.region, .clue').forEach(el => el.classList.toggle('on', i != null && el.dataset.i === String(i)));
+}
+for (const id of ['overlay', 'cluelist']) {
+  $(id).addEventListener('mouseover', e => { const el = e.target.closest('[data-i]'); if (el) focusClue(el.dataset.i); });
+  $(id).addEventListener('mouseleave', () => focusClue(null));
+}
+for (const [opt, cls] of [['optMasks', 'hide-masks'], ['optBoxes', 'hide-boxes'], ['optLabels', 'hide-labels']])
+  $(opt).onchange = e => $('stage').classList.toggle(cls, !e.target.checked);
+
+go.onclick = async () => {
+  if (!current) return;
+  const engine = $('engine').value;
+  go.disabled = true; msg.textContent = 'Running inference…';
+  out.innerHTML = `<span class="muted">${engine === 'geoeg'
+    ? 'Running the GeoEG pipeline (clues, detection, segmentation, OCR, scoring); this takes about 10 to 40 seconds…'
+    : 'Running inference; the first request may be slower…'}</span>`;
+  const fd = new FormData(); fd.append('file', current);
+  try {
+    const r = await fetch(`/api/predict?engine=${engine}`, { method: 'POST', body: fd });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || r.statusText);
+    showResult(d); showClues(d, currentUrl);
+    if (d.run) { await loadRuns(); $('runs').value = d.run; } else $('runs').value = '';
+    msg.textContent = '';
+  } catch (e) {
+    out.innerHTML = `<span class="err">Error: ${esc(e.message)}</span>`; msg.textContent = '';
+  } finally { go.disabled = false; }
+};
+
+$('runs').onchange = async e => {
+  const name = e.target.value;
+  if (!name) return;
+  try {
+    const r = await fetch(`/api/run/${encodeURIComponent(name)}`);
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || r.statusText);
+    drop.innerHTML = `<img src="${esc(d.image)}" alt="">`;
+    current = null; go.disabled = true; msg.textContent = '';
+    showResult(d); showClues(d, d.image);
+  } catch (err) { out.innerHTML = `<span class="err">Error: ${esc(err.message)}</span>`; }
+};
+</script>
+</body>
+</html>

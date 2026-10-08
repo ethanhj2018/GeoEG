@@ -1,0 +1,12 @@
+# geoeg conda 环境（Python 3.11）里已有/新增的包。torch 2.11.0+cu128 / transformers 5.19.0 / cudnn 9.19 不要改动。
+# 安装时用约束文件锁住核心包：pip freeze | grep -E '^(torch|transformers|nvidia-|numpy|huggingface)' > c.txt; pip install -c c.txt -r requirements.txt
+networkx>=3.6
+PyYAML>=6.0
+requests>=2.32
+python-dotenv>=1.0
+gradio>=6.0
+pytest>=9.0
+pyproj>=3.7        # G3 位置编码需要
+geoclip==1.2.3
+# SAM 2：从源码装（~/geoeg_deps/sam2，pip install -e）
+# PaddleOCR：只装在 geoeg-ocrtest 环境（paddlepaddle-gpu 3.4 / paddleocr 3.7），经子进程调用
