@@ -1,0 +1,39 @@
+{
+ "params": {
+  "place_decisive": 4.0,
+  "override_min_contra": Infinity,
+  "retrieval_margin": 0.5,
+  "retrieval_max_km": Infinity,
+  "w_g3": 0.5,
+  "w_gc": 0.5,
+  "w_sup": 1.0,
+  "w_con": 1.0,
+  "w_prox": 0.5,
+  "refine_radius_km": 200.0,
+  "refine_alpha": 0.5,
+  "refine_dist_penalty": 0.0,
+  "refine_min_gain": 0.0,
+  "refine_skip_high": false
+ },
+ "dev_objective": 0.528,
+ "dev_baseline_objective": 0.442,
+ "n_dev": 100,
+ "grid_size": 56832,
+ "grid_best_params": {
+  "place_decisive": 4.0,
+  "override_min_contra": Infinity,
+  "retrieval_margin": 0.5,
+  "retrieval_max_km": Infinity,
+  "w_g3": 0.5,
+  "w_gc": 0.5,
+  "w_sup": 1.0,
+  "w_con": 1.0,
+  "w_prox": 0.5,
+  "refine_radius_km": 200.0,
+  "refine_alpha": 0.5,
+  "refine_dist_penalty": 0.0,
+  "refine_min_gain": 0.0,
+  "refine_skip_high": false
+ },
+ "note": "place_decisive set to 4.0 instead of the grid's inf: identical dev objective (0.5253), and keeps readable place names decisive (Huashan regression)."
+}

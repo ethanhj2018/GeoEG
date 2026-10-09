@@ -23,6 +23,7 @@ MAX_SIDE = 1280  # vLLM caps pixels anyway; shrinking here keeps the request sma
 MIN_PIXELS, MAX_PIXELS, PATCH = 200704, 1003520, 28
 GEOEG_ROOT = Path(os.environ.get("GEOEG_ROOT", Path(__file__).resolve().parent.parent / "geoeg"))
 RUNS_DIR = GEOEG_ROOT / "runs"
+EXAMPLES = Path(__file__).resolve().parent / "examples"  # clickable test images + examples.json (ground truth)
 UPLOADS = Path(__file__).resolve().parent / "uploads"  # GeoEG runs keep a path to their image, so uploads persist
 GEOEG_LOCK = threading.Lock()                         # one pipeline run at a time: it loads models onto the GPU
 CATEGORIES = ["text", "object", "infra", "environment", "lighting"]  # same set as geoeg/geoeg/schema.py
@@ -223,11 +224,33 @@ def run_dir(name: str) -> Path:
     return d
 
 
+@app.get("/api/examples")
+def list_examples():
+    f = EXAMPLES / "examples.json"
+    return json.loads(f.read_text(encoding="utf-8")) if f.is_file() else []
+
+
+@app.get("/examples/{fname}")
+def example_file(fname: str):
+    p = EXAMPLES / fname
+    if "/" in fname or ".." in fname or not p.is_file():
+        raise HTTPException(404)
+    return FileResponse(p)
+
+
 @app.get("/api/runs")
 def list_runs():
+    """The page's own history: GeoEG runs made from images uploaded here (CLI / eval runs are left out)."""
     if not RUNS_DIR.is_dir():
         return []
-    return sorted((p.name for p in RUNS_DIR.iterdir() if (p / "result.json").is_file()), reverse=True)
+    names = []
+    for p in RUNS_DIR.iterdir():
+        try:
+            if str(UPLOADS) in json.loads((p / "result.json").read_text(encoding="utf-8")).get("image", ""):
+                names.append(p.name)
+        except (OSError, ValueError):
+            continue
+    return sorted(names, reverse=True)
 
 
 @app.get("/api/run/{name}")

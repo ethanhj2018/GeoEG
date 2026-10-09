@@ -1,0 +1,86 @@
+[
+ {
+  "file": "ex01.jpg",
+  "title": "Eiffel Tower, Paris",
+  "lat": 48.858249,
+  "lon": 2.294672,
+  "source": "IM2GPS3K 523882906_8593329b96_198_51035632501@N01.jpg (Flickr)"
+ },
+ {
+  "file": "ex02.jpg",
+  "title": "St. Peter's Basilica, Rome",
+  "lat": 41.890393,
+  "lon": 12.49197,
+  "source": "IM2GPS3K 231903216_66813fce66_88_55085284@N00.jpg (Flickr)"
+ },
+ {
+  "file": "ex03.jpg",
+  "title": "Times Square, New York",
+  "lat": 40.757826,
+  "lon": -73.985688,
+  "source": "IM2GPS3K 872673086_65e8d5efe6_1239_9729483@N02.jpg (Flickr)"
+ },
+ {
+  "file": "ex04.jpg",
+  "title": "Sydney Opera House",
+  "lat": -33.861328,
+  "lon": 151.209039,
+  "source": "IM2GPS3K 104132709_97b998c989_41_19355699@N00.jpg (Flickr)"
+ },
+ {
+  "file": "ex05.jpg",
+  "title": "Golden Gate Bridge, San Francisco",
+  "lat": 37.810868,
+  "lon": -122.47713,
+  "source": "IM2GPS3K 79848007_08424b4a76_37_24311489@N00.jpg (Flickr)"
+ },
+ {
+  "file": "ex06.jpg",
+  "title": "Westminster Abbey, London",
+  "lat": 51.499459,
+  "lon": -0.127705,
+  "source": "IM2GPS3K 315876761_b49e569d85_105_14491548@N00.jpg (Flickr)"
+ },
+ {
+  "file": "ex07.jpg",
+  "title": "Taj Mahal, Agra",
+  "lat": 27.176316,
+  "lon": 78.04902,
+  "source": "IM2GPS3K 291478236_f5a8c90125_107_59555137@N00.jpg (Flickr)"
+ },
+ {
+  "file": "ex08.jpg",
+  "title": "Machu Picchu, Peru",
+  "lat": -13.166996,
+  "lon": -72.545471,
+  "source": "IM2GPS3K 447020173_20f51eeeda_172_55126705@N00.jpg (Flickr)"
+ },
+ {
+  "file": "ex09.jpg",
+  "title": "Canal in Venice",
+  "lat": 45.435133,
+  "lon": 12.336788,
+  "source": "IM2GPS3K 1194828036_f64ee2efe4_1197_47311799@N00.jpg (Flickr)"
+ },
+ {
+  "file": "ex10.jpg",
+  "title": "Petra, Jordan",
+  "lat": 30.312727,
+  "lon": 35.431251,
+  "source": "IM2GPS3K 415509863_2bc4e21172_131_7132415@N03.jpg (Flickr)"
+ },
+ {
+  "file": "ex11.jpg",
+  "title": "Old Town Square, Prague",
+  "lat": 50.086776,
+  "lon": 14.415607,
+  "source": "IM2GPS3K 167298135_0773165b4a_66_50994135@N00.jpg (Flickr)"
+ },
+ {
+  "file": "ex12.jpg",
+  "title": "Grand Canyon, Arizona",
+  "lat": 36.08906,
+  "lon": -112.104492,
+  "source": "IM2GPS3K 290760846_151236205f_118_40829484@N00.jpg (Flickr)"
+ }
+]

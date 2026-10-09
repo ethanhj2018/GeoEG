@@ -24,6 +24,8 @@ class Region:
     country: str = ""                         # English country name of a geocoded region
     country_code: str = ""
     countries: list[str] = field(default_factory=list)  # level == "countries": lower-case English names
+    negate: bool = False                      # countries set means "anywhere EXCEPT these" (e.g. drives on the right)
+    importance: float | None = None           # Nominatim importance of the geocoded hit (0–1)
 
     @property
     def is_point(self) -> bool:
@@ -32,6 +34,33 @@ class Region:
     @property
     def is_set(self) -> bool:
         return self.level == "countries" and bool(self.countries)
+
+    def has_country(self, country: str) -> bool | None:
+        """Membership test for a countries set (honours `negate`); None if unknown."""
+        if not self.is_set or not country:
+            return None
+        inside = normalize_country(country) in self.countries
+        return (not inside) if self.negate else inside
+
+
+# Lower-case English country names as used by the geo-sleuth tables; aliases from VLM / Nominatim output.
+COUNTRY_ALIASES = {
+    "usa": "united states", "us": "united states", "u.s.": "united states", "u.s.a.": "united states",
+    "united states of america": "united states", "america": "united states",
+    "uk": "united kingdom", "great britain": "united kingdom", "britain": "united kingdom", "england": "united kingdom",
+    "scotland": "united kingdom", "wales": "united kingdom", "northern ireland": "united kingdom",
+    "czechia": "czech republic", "korea": "south korea", "republic of korea": "south korea",
+    "people's republic of china": "china", "prc": "china", "russian federation": "russia",
+    "türkiye": "turkey", "turkiye": "turkey", "viet nam": "vietnam", "holland": "netherlands",
+    "the netherlands": "netherlands", "côte d'ivoire": "ivory coast(côte d'ivoire)",
+    "ivory coast": "ivory coast(côte d'ivoire)", "democratic republic of the congo": "dr congo",
+    "myanmar (burma)": "myanmar", "burma": "myanmar", "uae": "united arab emirates",
+}
+
+
+def normalize_country(name: str) -> str:
+    n = (name or "").strip().lower()
+    return COUNTRY_ALIASES.get(n, n)
 
 
 @dataclass

@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 from typing import Iterator
 
-DATA_ROOT = Path(os.environ.get("GEOEG_DATA", "~/datasets")).expanduser()
+DATA_ROOT = Path(os.environ.get("GEOEG_DATA", "~/geoeg_data")).expanduser()
 
 
 def holo_examples(root: str = "~/geoeg_refs/HoloGeo/Data_Examples") -> Iterator[dict]:

@@ -29,6 +29,8 @@ ocr:
   rec_model: PP-OCRv6_medium_rec
   min_score: 0.8
   timeout_s: 180
+  persistent: true       # 常驻 worker：只有第一张图付 ~7 秒启动；空闲 idle_exit_s 秒后自动退出、释放约 0.8 GB 显存
+  idle_exit_s: 600
 
 gpu:
   budget_mib: 14336      # 整卡显存上限（含 vLLM），超了会在日志里告警
@@ -43,6 +45,27 @@ switches:
   geoclip: true
   g3: true
   contradict_edges: true
+  name_results: true     # 对输出的 Top-5 做 Nominatim 反向地理编码取地名（批量评测时关掉以省时间）
+
+# v2 决策（conclude/decide.py）：VLM 直接预测作锚点，证据只在明确矛盾时推翻，再在局部细化。
+# params 由 eval/run_eval.py 在 IM2GPS3K 开发集（100 张）上网格搜索得到，见 eval/results/tuned_params.json。
+decision:
+  place_min_importance: 0.35   # 文字地名的 Nominatim importance 下限，低于此不算证据
+  params:
+    place_decisive: 4.0
+    override_min_contra: .inf
+    retrieval_margin: 0.5
+    retrieval_max_km: .inf
+    w_g3: 0.5
+    w_gc: 0.5
+    w_sup: 1.0
+    w_con: 1.0
+    w_prox: 0.5
+    refine_radius_km: 200.0
+    refine_alpha: 0.5
+    refine_dist_penalty: 0.0
+    refine_min_gain: 0.0
+    refine_skip_high: false
 
 geocode:
   endpoint: https://nominatim.openstreetmap.org
@@ -60,8 +83,8 @@ candidates:
   rescore_top_n: 10      # 反向地理编码 + 国家级线索复核的候选数
   output_top_k: 5
 
-scoring:
-  w_clues: 1.0           # Σ 权重×置信度×是否在线索范围内
+scoring:                 # 仅 v1（legacy_v1/，评测方法 c）使用
+  w_clues: 1.0          # Σ 权重×置信度×是否在线索范围内
   w_contradict: 0.5      # 矛盾惩罚系数（候选落在线索范围外）
   w_g3: 2.0              # G3 相似度（候选间 min-max 归一化）
   w_geoclip: 2.0         # GeoCLIP 相似度（同上）

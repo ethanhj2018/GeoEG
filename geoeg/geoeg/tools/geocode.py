@@ -72,5 +72,7 @@ def _hit(h: dict) -> dict:
         dlon = (bbox[3] - bbox[2]) * 111.0 * math.cos(math.radians(lat))
         radius = 0.5 * math.hypot(dlat, dlon)
     return {"name": h.get("display_name", ""), "lat": lat, "lon": lon, "bbox": bbox, "radius_km": radius,
-            "addresstype": h.get("addresstype", ""), "country_code": h.get("address", {}).get("country_code", ""),
+            "category": h.get("category", ""), "type": h.get("type", ""),
+            "addresstype": h.get("addresstype", ""), "importance": float(h.get("importance") or 0.0),
+            "country_code": h.get("address", {}).get("country_code", ""),
             "country": h.get("address", {}).get("country", "")}

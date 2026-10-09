@@ -1,0 +1,279 @@
+{
+ "texts": [
+  "华山",
+  "HUASHAN MOUNTAIN",
+  "(陕西)",
+  "搜狐号@搜狐城市-抚州",
+  "HUASHAN MOUNTAIN (陕西)"
+ ],
+ "search": {
+  "华山": [
+   {
+    "name": "华山, Yantai, Shandong, 264000, China",
+    "lat": 37.3529487,
+    "lon": 120.3111505,
+    "bbox": [
+     37.3528987,
+     37.3529987,
+     120.3111005,
+     120.3112005
+    ],
+    "radius_km": 0.007089865706870445,
+    "category": "natural",
+    "type": "peak",
+    "addresstype": "peak",
+    "importance": 0.16006772640573738,
+    "country_code": "cn",
+    "country": "China"
+   },
+   {
+    "name": "华山, Tangshan, Hebei, China",
+    "lat": 40.1538345,
+    "lon": 118.0888438,
+    "bbox": [
+     40.1537845,
+     40.1538845,
+     118.0887938,
+     118.0888938
+    ],
+    "radius_km": 0.006985460976380303,
+    "category": "natural",
+    "type": "peak",
+    "addresstype": "peak",
+    "importance": 0.1600669542992294,
+    "country_code": "cn",
+    "country": "China"
+   },
+   {
+    "name": "Mengyuan, G310, Mengyuan, Huayin City, Weinan City, Shaanxi, China",
+    "lat": 34.5561587,
+    "lon": 110.1350056,
+    "bbox": [
+     34.5511587,
+     34.5611587,
+     110.1300056,
+     110.1400056
+    ],
+    "radius_km": 0.7189914316765745,
+    "category": "railway",
+    "type": "station",
+    "addresstype": "railway",
+    "importance": 0.39106112740783944,
+    "country_code": "cn",
+    "country": "China"
+   },
+   {
+    "name": "Huashan, Caijiazhuang Road, Lingshanwei, Qingdao West Coast New Area, Huangdao District, Qingdao, Shandong, 266500, China",
+    "lat": 35.9083656,
+    "lon": 120.0754274,
+    "bbox": [
+     35.9033656,
+     35.9133656,
+     120.0704274,
+     120.0804274
+    ],
+    "radius_km": 0.71421163225683,
+    "category": "railway",
+    "type": "station",
+    "addresstype": "railway",
+    "importance": 0.33518014852624106,
+    "country_code": "cn",
+    "country": "China"
+   },
+   {
+    "name": "Huashan, Bayan County, Harbin, Heilongjiang, 151800, China",
+    "lat": 46.2273,
+    "lon": 127.366,
+    "bbox": [
+     46.1746306,
+     46.3332162,
+     127.2911567,
+     127.4645387
+    ],
+    "radius_km": 11.03547717511096,
+    "category": "boundary",
+    "type": "administrative",
+    "addresstype": "town",
+    "importance": 0.24158668584662718,
+    "country_code": "cn",
+    "country": "China"
+   }
+  ],
+  "HUASHAN MOUNTAIN": [
+   {
+    "name": "Mountain station of the cable car to the west summit of Huashan, Chang Kong Cliff Walk, Huayin City, Weinan City, Shaanxi, China",
+    "lat": 34.4794463,
+    "lon": 110.0766756,
+    "bbox": [
+     34.4793963,
+     34.4794963,
+     110.0766256,
+     110.0767256
+    ],
+    "radius_km": 0.007192591940081861,
+    "category": "aerialway",
+    "type": "station",
+    "addresstype": "aerialway",
+    "importance": 6.427634088650367e-05,
+    "country_code": "cn",
+    "country": "China"
+   }
+  ],
+  "陕西": [
+   {
+    "name": "Shaanxi, China",
+    "lat": 35.5895959,
+    "lon": 109.3013107,
+    "bbox": [
+     31.7066651,
+     39.584937,
+     105.487304,
+     111.2424779
+    ],
+    "radius_km": 508.5778504102511,
+    "category": "boundary",
+    "type": "administrative",
+    "addresstype": "state",
+    "importance": 0.6802699318816106,
+    "country_code": "cn",
+    "country": "China"
+   }
+  ],
+  "搜狐号@搜狐城市-抚州": [],
+  "HUASHAN MOUNTAIN (陕西": [
+   {
+    "name": "Mountain station of the cable car to the west summit of Huashan, Chang Kong Cliff Walk, Huayin City, Weinan City, Shaanxi, China",
+    "lat": 34.4794463,
+    "lon": 110.0766756,
+    "bbox": [
+     34.4793963,
+     34.4794963,
+     110.0766256,
+     110.0767256
+    ],
+    "radius_km": 0.007192591940081861,
+    "category": "aerialway",
+    "type": "station",
+    "addresstype": "aerialway",
+    "importance": 6.427634088650367e-05,
+    "country_code": "cn",
+    "country": "China"
+   }
+  ],
+  "华山 陕西": [
+   {
+    "name": "Mengyuan, G310, Mengyuan, Huayin City, Weinan City, Shaanxi, China",
+    "lat": 34.5561587,
+    "lon": 110.1350056,
+    "bbox": [
+     34.5511587,
+     34.5611587,
+     110.1300056,
+     110.1400056
+    ],
+    "radius_km": 0.7189914316765745,
+    "category": "railway",
+    "type": "station",
+    "addresstype": "railway",
+    "importance": 0.39106112740783944,
+    "country_code": "cn",
+    "country": "China"
+   },
+   {
+    "name": "Huashan Zhongcai Shopping Plaza, G310, Huayin City, Weinan City, Shaanxi, China",
+    "lat": 34.5319239,
+    "lon": 110.0749482,
+    "bbox": [
+     34.5318739,
+     34.5319739,
+     110.0748982,
+     110.0749982
+    ],
+    "radius_km": 0.007190760629128186,
+    "category": "shop",
+    "type": "supermarket",
+    "addresstype": "shop",
+    "importance": 6.427634088650367e-05,
+    "country_code": "cn",
+    "country": "China"
+   },
+   {
+    "name": "Huashan, G310, Huayin City, Weinan City, Shaanxi, China",
+    "lat": 34.5225441,
+    "lon": 110.0610374,
+    "bbox": [
+     34.5175441,
+     34.5275441,
+     110.0560374,
+     110.0660374
+    ],
+    "radius_km": 0.7191088085031939,
+    "category": "railway",
+    "type": "station",
+    "addresstype": "railway",
+    "importance": 6.427634088650367e-05,
+    "country_code": "cn",
+    "country": "China"
+   },
+   {
+    "name": "Huashan, 甘钦线, Luonan County, Shangluo, Shaanxi, China",
+    "lat": 34.3981198,
+    "lon": 110.0538344,
+    "bbox": [
+     34.3980698,
+     34.3981698,
+     110.0537844,
+     110.0538844
+    ],
+    "radius_km": 0.007195426519296994,
+    "category": "tourism",
+    "type": "attraction",
+    "addresstype": "tourism",
+    "importance": 6.179827573048016e-05,
+    "country_code": "cn",
+    "country": "China"
+   }
+  ],
+  "HUASHAN MOUNTAIN 陕西": [
+   {
+    "name": "Mountain station of the cable car to the west summit of Huashan, Chang Kong Cliff Walk, Huayin City, Weinan City, Shaanxi, China",
+    "lat": 34.4794463,
+    "lon": 110.0766756,
+    "bbox": [
+     34.4793963,
+     34.4794963,
+     110.0766256,
+     110.0767256
+    ],
+    "radius_km": 0.007192591940081861,
+    "category": "aerialway",
+    "type": "station",
+    "addresstype": "aerialway",
+    "importance": 6.427634088650367e-05,
+    "country_code": "cn",
+    "country": "China"
+   }
+  ],
+  "搜狐号@搜狐城市-抚州 陕西": [],
+  "HUASHAN MOUNTAIN (陕西 陕西": [
+   {
+    "name": "Mountain station of the cable car to the west summit of Huashan, Chang Kong Cliff Walk, Huayin City, Weinan City, Shaanxi, China",
+    "lat": 34.4794463,
+    "lon": 110.0766756,
+    "bbox": [
+     34.4793963,
+     34.4794963,
+     110.0766256,
+     110.0767256
+    ],
+    "radius_km": 0.007192591940081861,
+    "category": "aerialway",
+    "type": "station",
+    "addresstype": "aerialway",
+    "importance": 6.427634088650367e-05,
+    "country_code": "cn",
+    "country": "China"
+   }
+  ]
+ }
+}

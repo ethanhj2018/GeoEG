@@ -23,9 +23,7 @@ BBOX_PAD_DEG = 0.25
 def contains(r: Region, cand: Candidate) -> bool | None:
     """True / False, or None when the region cannot be tested against this candidate."""
     if r.is_set:
-        if not cand.country:
-            return None
-        return cand.country.lower() in r.countries
+        return r.has_country(cand.country)
     if not r.is_point:
         return None
     if r.level == "country" and r.country_code and cand.country_code:

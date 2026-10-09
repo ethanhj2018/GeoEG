@@ -30,6 +30,13 @@
   .badge { display:inline-block; font-size:12px; padding:2px 8px; border-radius:10px; background:#eef3fe; color:var(--accent); margin-left:8px; vertical-align:middle; }
   .muted { color:var(--muted); font-size:13px; }
   .err { color:var(--err); }
+  #examples { margin-top:16px; }
+  .exgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(84px, 1fr)); gap:8px; margin-top:6px; }
+  .ex { border:2px solid transparent; border-radius:8px; padding:0; background:none; cursor:pointer; text-align:left; margin:0; color:var(--fg); }
+  .ex img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:6px; display:block; }
+  .ex span { display:block; font-size:11px; line-height:1.25; margin-top:3px; }
+  .ex.on { border-color:var(--accent); }
+  .truth { margin:6px 0; padding:6px 10px; border-radius:6px; background:#eefaf1; font-size:14px; }
   .top5 { padding-left:20px; margin:8px 0; font-size:14px; }
   .top5 li { margin:2px 0; }
   .top5 .s { color:var(--muted); font-family:ui-monospace,Consolas,monospace; font-size:12px; }
@@ -83,6 +90,10 @@
     <input type="file" id="file" accept="image/*" hidden>
     <button id="go" disabled>Locate</button>
     <span id="msg" class="muted"></span>
+    <div id="examples" hidden>
+      <div class="muted">Or try a classic test image (IM2GPS3K, with known location):</div>
+      <div class="exgrid" id="exgrid"></div>
+    </div>
   </section>
   <section class="card">
     <div id="result" class="muted">Results will appear here.</div>
@@ -106,7 +117,7 @@
 <script>
 const $ = id => document.getElementById(id);
 const drop = $('drop'), fileIn = $('file'), go = $('go'), msg = $('msg'), out = $('result');
-let current = null, currentUrl = null, markers = [], map = null;
+let current = null, currentUrl = null, markers = [], map = null, truth = null;
 
 if (window.L) {
   map = L.map('map').setView([20, 0], 2);
@@ -137,14 +148,37 @@ async function loadRuns() {
 }
 loadRuns();
 
-function setFile(f) {
+function setFile(f, t = null) {
   if (!f || !f.type.startsWith('image/')) { msg.textContent = 'Please choose an image file'; return; }
-  current = f;
+  current = f; truth = t;
+  document.querySelectorAll('.ex').forEach(b => b.classList.toggle('on', !!t && b.dataset.file === t.file));
   if (currentUrl) URL.revokeObjectURL(currentUrl);
   currentUrl = URL.createObjectURL(f);
   drop.innerHTML = `<img src="${currentUrl}" alt="">`;
   go.disabled = false; msg.textContent = f.name;
 }
+async function loadExamples() {
+  try {
+    const ex = await (await fetch('/api/examples')).json();
+    if (!ex.length) return;
+    $('exgrid').innerHTML = ex.map((e, i) =>
+      `<button class="ex" data-i="${i}" data-file="${esc(e.file)}" title="${esc(e.title)}"><img src="/examples/${esc(e.file)}" alt="" loading="lazy"><span>${esc(e.title)}</span></button>`).join('');
+    $('examples').hidden = false;
+    $('exgrid').onclick = async ev => {
+      const b = ev.target.closest('.ex'); if (!b) return;
+      const e = ex[b.dataset.i], blob = await (await fetch(`/examples/${e.file}`)).blob();
+      setFile(new File([blob], e.file, { type: blob.type || 'image/jpeg' }), e);
+      msg.textContent = `Example: ${e.title}`;
+    };
+  } catch {}
+}
+loadExamples();
+
+function km(a, b, c, d) {
+  const r = Math.PI / 180, h = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(h));
+}
+
 drop.onclick = () => fileIn.click();
 fileIn.onchange = () => setFile(fileIn.files[0]);
 drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
@@ -155,11 +189,13 @@ document.onpaste = e => { const it = [...e.clipboardData.items].find(i => i.type
 function showResult(d) {
   const parts = [d.place, d.city, d.region, d.country].filter(Boolean);
   const name = parts.filter((p, i) => !parts.slice(0, i).some(q => q.includes(p))).join(', ');
-  const hasLL = d.latitude != null && d.longitude != null;
+  const hasLL = d.latitude != null && d.longitude != null, t = d.source === 'geoeg' && !d.live ? null : truth;
   const conf = d.confidence ? `<span class="badge">Confidence: ${esc(confEn[d.confidence] || d.confidence)}</span>` : '';
   out.innerHTML = `
     <p class="place">${esc(name) || 'Unknown location'}${conf}</p>
     <div class="coords">${hasLL ? `${d.latitude.toFixed(4)}, ${d.longitude.toFixed(4)}` : 'No coordinates'}</div>
+    ${t ? `<div class="truth">Ground truth: <b>${esc(t.title)}</b> (${t.lat.toFixed(4)}, ${t.lon.toFixed(4)})${hasLL
+      ? ` · error <b>${km(d.latitude, d.longitude, t.lat, t.lon).toFixed(1)} km</b>` : ''}</div>` : ''}
     ${d.reasoning ? `<p>${esc(d.reasoning)}</p>` : ''}
     ${d.top5?.length > 1 ? `<p><b>Top-5 candidates</b></p><ol class="top5">${d.top5.map(c =>
       `<li>${esc(c.name) || `${c.lat.toFixed(3)}, ${c.lon.toFixed(3)}`} <span class="s">score ${(c.score ?? 0).toFixed(2)}</span></li>`).join('')}</ol>` : ''}
@@ -171,9 +207,12 @@ function showResult(d) {
     (d.top5 || []).slice(1).forEach((c, i) => markers.push(
       L.circleMarker([c.lat, c.lon], { radius: 7, color: '#6b7280', weight: 2, fillOpacity: .5 })
         .addTo(map).bindPopup(`#${i + 2} ${esc(c.name)}`)));
+    if (t) markers.push(L.circleMarker([t.lat, t.lon], { radius: 9, color: '#1e8e3e', weight: 3, fillOpacity: .6 })
+      .addTo(map).bindPopup(`Ground truth: ${esc(t.title)}`));
     if (hasLL) {
       markers.push(L.marker([d.latitude, d.longitude]).addTo(map).bindPopup(esc(name)).openPopup());
-      map.setView([d.latitude, d.longitude], 10);
+      if (t) map.fitBounds([[d.latitude, d.longitude], [t.lat, t.lon]], { padding: [40, 40], maxZoom: 12 });
+      else map.setView([d.latitude, d.longitude], 10);
     }
   }
 }
@@ -251,7 +290,7 @@ go.onclick = async () => {
     const r = await fetch(`/api/predict?engine=${engine}`, { method: 'POST', body: fd });
     const d = await r.json();
     if (!r.ok) throw new Error(d.detail || r.statusText);
-    showResult(d); showClues(d, currentUrl);
+    d.live = true; showResult(d); showClues(d, currentUrl);
     if (d.run) { await loadRuns(); $('runs').value = d.run; } else $('runs').value = '';
     msg.textContent = '';
   } catch (e) {

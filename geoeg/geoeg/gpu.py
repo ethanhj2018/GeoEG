@@ -69,12 +69,27 @@ class GPUManager:
 
     # --- load / release ------------------------------------------------------
     @contextlib.contextmanager
-    def use(self, name: str, loader):
-        """`loader()` returns the model object; it is released on exit."""
+    def use(self, name: str, loader, keep: dict | None = None):
+        """`loader()` returns the model object; it is released on exit.
+
+        With `keep` (a dict owned by the caller, e.g. the batch evaluator) the model is loaded once, stored in
+        `keep[name]` and left resident across calls; the caller is responsible for the VRAM budget then.
+        """
         import torch
         self._current = name
         if torch.cuda.is_available():
             torch.cuda.reset_peak_memory_stats()
+        if keep is not None:
+            if name not in keep:
+                keep[name] = loader()
+            try:
+                yield keep[name]
+            finally:
+                self._sample()
+                if torch.cuda.is_available():
+                    self.own_peaks[name] = torch.cuda.max_memory_reserved() / 2**20
+                self._current = None
+            return
         t0 = time.time()
         model = loader()
         log.info("loaded %s in %.1fs (card %.0f MiB)", name, time.time() - t0, card_used_mib() or -1)

@@ -8,16 +8,20 @@ from PIL import Image
 
 from geoeg.config import ConfigError, load_config
 from geoeg.eval.datasets import holo_examples
-from geoeg.extract.vlm import VLMClient, build_prompt
+from geoeg.extract.vlm import BASELINE_PROMPT, VLMClient, build_baseline_prompt, build_prompt
 from geoeg.pipeline import explain
 from geoeg.schema import Candidate, Clue, Region
 
 
 def test_prompt_language_switch():
-    assert "in English;" in build_prompt("en") and "Simplified Chinese" not in build_prompt("en")
-    assert "in Simplified Chinese;" in build_prompt("zh")
-    for lang in ("en", "zh"):    # detector phrases and geocoder names stay English either way
-        assert "query and region_query in English only" in build_prompt(lang)
+    assert "in English." in build_prompt("en") and "Simplified Chinese" not in build_prompt("en")
+    assert "in Simplified Chinese." in build_prompt("zh")
+    for lang in ("en", "zh"):    # detector phrases stay English either way; no location guessing in clue prompt
+        assert "query: MUST be English" in build_prompt(lang)
+        assert "Do NOT say or guess" in build_prompt(lang)
+        assert "latitude" not in build_prompt(lang)
+    assert build_baseline_prompt("en") == BASELINE_PROMPT          # identical to the web baseline
+    assert "Simplified Chinese" in build_baseline_prompt("zh")
     with pytest.raises(ValueError):
         build_prompt("fr")
 

@@ -40,14 +40,24 @@ class GeoCLIPPrior:
                           for chunk in gps.split(GALLERY_CHUNK)])
 
     @torch.no_grad()
-    def top_k(self, image: Image.Image, k: int = 20) -> list[dict]:
+    def _gallery_features(self) -> torch.Tensor:
+        if getattr(self, "_gal_feats", None) is None:      # 100k × 512 fp32 ≈ 200 MB, computed once per load
+            self._gal_feats = self._location_features(self.model.gps_gallery.to(self.device))
+        return self._gal_feats
+
+    @torch.no_grad()
+    def gallery_scores(self, image: Image.Image) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """(gallery lat/lon N×2, cosine similarity N, softmax probability N) over GeoCLIP's GPS gallery."""
         img = self._image_features(image)
-        gallery = self.model.gps_gallery.to(self.device)
-        logits = self.model.logit_scale.exp() * (img @ self._location_features(gallery).T)
-        probs = logits.softmax(dim=-1).squeeze(0)
-        p, idx = probs.topk(k)
-        g = gallery[idx].cpu().numpy()
-        return [{"lat": float(a), "lon": float(b), "prob": float(q)} for (a, b), q in zip(g, p.cpu().numpy())]
+        sims = (img @ self._gallery_features().T).squeeze(0)
+        probs = (self.model.logit_scale.exp() * sims).softmax(dim=-1)
+        return self.model.gps_gallery.cpu().numpy(), sims.float().cpu().numpy(), probs.float().cpu().numpy()
+
+    @torch.no_grad()
+    def top_k(self, image: Image.Image, k: int = 20) -> list[dict]:
+        gallery, _, probs = self.gallery_scores(image)
+        idx = np.argsort(-probs)[:k]
+        return [{"lat": float(gallery[i, 0]), "lon": float(gallery[i, 1]), "prob": float(probs[i])} for i in idx]
 
     @torch.no_grad()
     def similarity(self, image: Image.Image, latlons: list[tuple[float, float]]) -> np.ndarray:

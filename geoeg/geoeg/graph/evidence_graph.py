@@ -25,19 +25,26 @@ def _radius(r: Region) -> float:
 def relation(a: Region, b: Region) -> tuple[str | None, str]:
     """Edge type between two regions (from a's point of view) and a short reason; None = unrelated/unknown."""
     if a.is_set and b.is_set:
+        if a.negate and b.negate:
+            return None, ""
+        if a.negate or b.negate:                      # "in S" vs "not in L"
+            pos, neg = (b, a) if a.negate else (a, b)
+            rest = set(pos.countries) - set(neg.countries)
+            if not rest:
+                return "contradict", "country sets are disjoint"
+            return "support", f"{len(rest)} countries satisfy both"
         inter = set(a.countries) & set(b.countries)
         if not inter:
-            return "contradict", "国家集合不相交"
+            return "contradict", "country sets are disjoint"
         if set(a.countries) <= set(b.countries) or set(b.countries) <= set(a.countries):
-            return "refine", f"国家集合包含（交集 {len(inter)} 国）"
-        return "support", f"国家集合有交集（{len(inter)} 国）"
+            return "refine", f"country sets nested ({len(inter)} in common)"
+        return "support", f"country sets overlap ({len(inter)} in common)"
     if a.is_set or b.is_set:
         s, p = (a, b) if a.is_set else (b, a)
-        country = p.country.strip().lower()
-        if not p.is_point or not country:
+        inside = s.has_country(p.country) if p.is_point else None
+        if inside is None:
             return None, ""
-        inside = country in s.countries
-        return ("support" if inside else "contradict"), f"{country} {'在' if inside else '不在'}国家集合内"
+        return ("support" if inside else "contradict"), f"{p.country} {'matches' if inside else 'violates'} {s.name}"
     if not (a.is_point and b.is_point):
         return None, ""
     d = haversine_km(a.lat, a.lon, b.lat, b.lon)
