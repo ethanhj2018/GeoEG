@@ -114,9 +114,9 @@ Results on the 200-image test split:
 
 | Method | Median error | 1 km | 25 km | 200 km | 750 km | 2500 km |
 |---|---|---|---|---|---|---|
-| Qwen2.5-VL-7B direct prediction | 263 km | 4.5% | 28.0% | 49.0% | 65.0% | 77.0% |
-| GeoCLIP alone | 210 km | 12.0% | 30.0% | 49.5% | 64.0% | 78.5% |
-| **GeoEG** | **204 km** | **13.0%** | **31.5%** | **50.0%** | 65.0% | 78.0% |
+| Qwen2.5-VL-7B direct prediction | 247 km | 4.5% | 28.0% | 49.0% | 65.0% | 77.0% |
+| GeoCLIP alone | 208 km | 12.0% | 30.0% | 49.5% | 64.0% | 78.5% |
+| **GeoEG** | **198 km** | **13.0%** | **31.5%** | **50.0%** | 65.0% | 78.0% |
 
 Per-image errors, the tuning grid and the tuned parameters are in `geoeg/geoeg/eval/results/`. With 200 images the differences are within roughly ±3 percentage points, and the 7B VLM is the main bottleneck; stronger VLMs (via hybrid mode) are the natural next step.
 
