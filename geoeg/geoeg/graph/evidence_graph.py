@@ -50,11 +50,11 @@ def relation(a: Region, b: Region) -> tuple[str | None, str]:
     d = haversine_km(a.lat, a.lon, b.lat, b.lon)
     ra, rb = _radius(a), _radius(b)
     if d > ra + rb:
-        return "contradict", f"两区域相距 {d:.0f} km，超过半径和 {ra + rb:.0f} km"
+        return "contradict", f"regions are {d:.0f} km apart, more than the sum of radii {ra + rb:.0f} km"
     small, big = sorted((ra, rb))
     if big > 0 and small < REFINE_RATIO * big and d <= big:
-        return "refine", f"小区域（{small:.0f} km）落在大区域（{big:.0f} km）内"
-    return "support", f"区域重叠（距离 {d:.0f} km）"
+        return "refine", f"smaller region ({small:.0f} km) lies inside larger region ({big:.0f} km)"
+    return "support", f"regions overlap (distance {d:.0f} km)"
 
 
 def build_graph(clues: list[Clue], with_contradict: bool = True) -> tuple[nx.DiGraph, list[Edge]]:

@@ -1,7 +1,7 @@
-# 密钥
+# Secrets
 .env
 
-# 运行产物与缓存
+# Run outputs and caches
 runs/
 .cache/
 *.sqlite
@@ -11,7 +11,7 @@ __pycache__/
 .pytest_cache/
 .geo-cache/
 
-# 模型权重与 checkpoints（统一放 WSL 的 ~/models、~/geoeg_refs/checkpoints、HF 缓存，不进仓库）
+# Model weights and checkpoints (kept in WSL under ~/models, ~/geoeg_refs/checkpoints and the HF cache, never in the repo)
 checkpoints/
 models/
 *.pth

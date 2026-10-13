@@ -20,7 +20,7 @@ def _run(script: str, args: list[str], cwd: str, timeout: int = 120) -> dict:
     p = subprocess.run([sys.executable, str(SCRIPTS / script), *args], capture_output=True, text=True,
                        cwd=cwd, timeout=timeout)
     if p.returncode:
-        raise RuntimeError(f"{script} {' '.join(args)} 失败：{p.stderr[-500:]}")
+        raise RuntimeError(f"{script} {' '.join(args)} failed: {p.stderr[-500:]}")
     return json.loads(p.stdout)
 
 

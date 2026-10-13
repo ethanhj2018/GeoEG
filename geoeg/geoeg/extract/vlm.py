@@ -169,5 +169,5 @@ class VLMClient:
 def parse_json(text: str) -> dict:
     m = re.search(r"\{.*\}", text, re.S)
     if not m:
-        raise ValueError(f"VLM 输出里没有 JSON：{text[:300]}")
+        raise ValueError(f"No JSON in VLM output: {text[:300]}")
     return json.loads(m.group(0))

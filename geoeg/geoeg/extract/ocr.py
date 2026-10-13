@@ -93,5 +93,5 @@ def run_ocr_once(images: list[str], cfg: dict) -> dict:
                "python", str(WORKER), "--in", str(req), "--out", str(out)]
         p = subprocess.run(cmd, capture_output=True, text=True, timeout=o["timeout_s"])
         if p.returncode or not out.exists():
-            raise RuntimeError(f"OCR worker 失败（exit {p.returncode}）：{(p.stderr or p.stdout)[-800:]}")
+            raise RuntimeError(f"OCR worker failed (exit {p.returncode}): {(p.stderr or p.stdout)[-800:]}")
         return json.loads(out.read_text(encoding="utf-8"))

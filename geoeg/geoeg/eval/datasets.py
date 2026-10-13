@@ -30,8 +30,8 @@ def _csv_dataset(name: str, img_dir: str, meta: str, id_col: str, lat_col: str, 
     meta_path, images = root / meta, root / img_dir
     if not meta_path.exists() or not images.exists():
         raise FileNotFoundError(
-            f"{name} 尚未下载：需要 {meta_path} 和 {images}/。设置 GEOEG_DATA 指向数据根目录，"
-            f"元数据 CSV 见 TIBHannover/GeoEstimation，图片包见 G3 仓库 README。")
+            f"{name} is not downloaded: need {meta_path} and {images}/. Set GEOEG_DATA to the data root; "
+            f"the metadata CSV is from TIBHannover/GeoEstimation and the image archive is linked in the G3 repo README.")
     with meta_path.open(encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     if split == "dev":           # fixed dev subset: first 500 rows in file order

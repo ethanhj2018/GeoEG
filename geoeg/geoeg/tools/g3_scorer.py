@@ -22,7 +22,7 @@ class G3Scorer:
         state = torch.load(ckpt, map_location="cpu", weights_only=True)
         missing, unexpected = model.load_state_dict(state, strict=False)
         if missing or unexpected:
-            raise RuntimeError(f"g3.pth 与模型结构不符：missing={missing[:5]} unexpected={unexpected[:5]}")
+            raise RuntimeError(f"g3.pth does not match the model: missing={missing[:5]} unexpected={unexpected[:5]}")
         for name in ("text_model", "text_projection", "text_projection_else", "vision_projection_else_1"):
             delattr(model, name)
         model.vision_model.half()

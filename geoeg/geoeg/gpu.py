@@ -65,7 +65,7 @@ class GPUManager:
         if self._current:
             self.peaks[self._current] = max(self.peaks.get(self._current, 0.0), used)
         if used > self.budget_mib:
-            log.warning("整卡显存 %.0f MiB 超过预算 %.0f MiB（当前模型：%s）", used, self.budget_mib, self._current)
+            log.warning("Card VRAM %.0f MiB exceeds budget %.0f MiB (current model: %s)", used, self.budget_mib, self._current)
 
     # --- load / release ------------------------------------------------------
     @contextlib.contextmanager

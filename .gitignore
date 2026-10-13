@@ -1,11 +1,11 @@
-# 密钥与本地配置
+# Secrets and local config
 .env
 .env.*
 !.env.example
 *.pem
 *.key
 
-# 模型权重与 checkpoints
+# Model weights and checkpoints
 *.pth
 *.pt
 *.safetensors
@@ -16,7 +16,7 @@
 checkpoints/
 models/
 
-# HF / pip / 其他缓存
+# HF / pip / other caches
 .cache/
 .huggingface/
 hf_cache/
@@ -29,14 +29,14 @@ __pycache__/
 *.sqlite
 *.sqlite3
 
-# 运行产物与上传
+# Run outputs and uploads
 runs/
 geoeg/runs/
 web/uploads/
 logs/
 *.log
 
-# 编辑器 / 系统
+# Editor / OS
 .vscode/
 .idea/
 Thumbs.db

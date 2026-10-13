@@ -44,7 +44,7 @@ SPLIT_FILE = DS / "split.json"
 def load_meta() -> dict[str, dict]:
     path = DS / "im2gps3k_places365.csv"
     if not path.exists():
-        sys.exit(f"缺少 {path}：先下载 IM2GPS3K（见 README）")
+        sys.exit(f"Missing {path}: download IM2GPS3K first (see README)")
     rows = {}
     with path.open(encoding="utf-8") as f:
         for r in csv.DictReader(f):
@@ -192,7 +192,7 @@ GRID_REFINE = {
 def cmd_tune(args) -> None:
     recs = [r for r in load_records("dev", "v2") if r.get("ok")]
     if not recs:
-        sys.exit("先跑 dev：run --split dev --method v2")
+        sys.exit("Run the dev split first: run --split dev --method v2")
     rows = []
     base_obj = objective([dist(r, r.get("baseline")) for r in recs])
     best = (base_obj, dict(DEFAULT_PARAMS, override_min_contra=math.inf, place_decisive=math.inf,
@@ -274,18 +274,18 @@ def cmd_report(args) -> None:
             actions[a] = actions.get(a, 0) + 1
     t2 = [v2[i]["timings"]["total"] for i in ids if v2[i].get("ok")]
     t1 = [v1[i]["timings"]["total"] for i in ids if v1 and v1[i].get("ok")]
-    md = ["# IM2GPS3K 测试集结果", "",
-          f"- 测试集 {len(ids)} 张（seed 见 split.json；开发集只用于调参，未参与本表）",
-          f"- 失败（计为未命中）：v2 {sum(not v2[i].get('ok') for i in ids)}，"
+    md = ["# IM2GPS3K test results", "",
+          f"- Test split: {len(ids)} images (seed in split.json; the dev split is used only for tuning and is not in this table)",
+          f"- Failures (counted as misses): v2 {sum(not v2[i].get('ok') for i in ids)}, "
           f"v1 {sum(not v1[i].get('ok') for i in ids) if v1 else '-'}",
-          "- 评测设置：Grounding DINO / SAM 2 关闭（只影响显示）；v2 不对 Top-5 反向地理编码取地名；外部调用全部走缓存。", "",
-          "| 方法 | n | 中位误差 km | Acc@1km | Acc@25km | Acc@200km | Acc@750km | Acc@2500km |", "|---|---|---|---|---|---|---|---|"]
+          "- Setup: Grounding DINO / SAM 2 off (display only); v2 does not reverse-geocode the Top-5; all external calls cached.", "",
+          "| Method | n | Median error km | Acc@1km | Acc@25km | Acc@200km | Acc@750km | Acc@2500km |", "|---|---|---|---|---|---|---|---|"]
     for r in table:
         med = "-" if r["median_km"] is None else f"{r['median_km']:.0f}"
         md.append(f"| {r['method']} | {r['n']} | {med} | " + " | ".join(f"{100 * r[f'acc@{t}km']:.1f}%" for t in THRESHOLDS_KM) + " |")
-    md += ["", f"v2 决策分布（调参后）：{actions}", "",
-           f"调参结果：`{json.dumps(tuned, default=str)}`", "",
-           f"评测模式下单张耗时（中位数）：v2 {statistics.median(t2):.1f}s" + (f"，v1 {statistics.median(t1):.1f}s" if t1 else "")]
+    md += ["", f"v2 decision counts (tuned): {actions}", "",
+           f"Tuned params: `{json.dumps(tuned, default=str)}`", "",
+           f"Median time per image in eval mode: v2 {statistics.median(t2):.1f}s" + (f", v1 {statistics.median(t1):.1f}s" if t1 else "")]
     (RESULTS / "summary.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     print("\n".join(md))
 

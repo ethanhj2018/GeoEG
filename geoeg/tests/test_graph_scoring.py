@@ -21,9 +21,9 @@ def test_relations():
 
 
 def test_graph_edges_and_direction():
-    clues = [Clue("a", "text", "法语+荷兰语路牌", 5, confidence=0.9, region=BELGIUM),
-             Clue("b", "object", "布鲁塞尔地标", 4, confidence=0.8, region=BRUSSELS),
-             Clue("c", "infra", "靠左行驶", 3, confidence=0.6, region=LEFT)]
+    clues = [Clue("a", "text", "French + Dutch street signs", 5, confidence=0.9, region=BELGIUM),
+             Clue("b", "object", "Brussels landmark", 4, confidence=0.8, region=BRUSSELS),
+             Clue("c", "infra", "drives on the left", 3, confidence=0.6, region=LEFT)]
     g, edges = build_graph(clues)
     types = {(e.src, e.dst): e.type for e in edges}
     assert types[("a", "b")] == "refine"            # broad → specific
@@ -35,8 +35,8 @@ def test_graph_edges_and_direction():
 
 
 def test_contains_and_scoring_prefers_consistent_candidate():
-    clues = [Clue("a", "text", "路牌", 5, confidence=0.9, region=BELGIUM),
-             Clue("b", "object", "地标", 4, confidence=0.8, region=BRUSSELS)]
+    clues = [Clue("a", "text", "street sign", 5, confidence=0.9, region=BELGIUM),
+             Clue("b", "object", "landmark", 4, confidence=0.8, region=BRUSSELS)]
     brussels = Candidate(50.85, 4.35, country="Belgium", country_code="be", sources=["vlm"], prior=0.5)
     tokyo = Candidate(35.68, 139.69, country="Japan", country_code="jp", sources=["vlm"], prior=1.0)
     assert contains(BELGIUM, brussels) and not contains(BELGIUM, tokyo)
@@ -48,7 +48,7 @@ def test_contains_and_scoring_prefers_consistent_candidate():
 
 def test_repeated_region_counts_once():
     w = {"w_clues": 1, "w_contradict": 0.5, "w_g3": 0, "w_geoclip": 0, "w_vlm": 0}
-    echo = [Clue(f"e{i}", "object", "同一结论", 3, confidence=0.8, region=BRUSSELS) for i in range(4)]
+    echo = [Clue(f"e{i}", "object", "same conclusion", 3, confidence=0.8, region=BRUSSELS) for i in range(4)]
     one = score([Candidate(50.85, 4.35)], echo[:1], {}, w)[0].score
     four = score([Candidate(50.85, 4.35)], echo, {}, w)[0].score
     assert four == one == pytest.approx(3 * 0.8)

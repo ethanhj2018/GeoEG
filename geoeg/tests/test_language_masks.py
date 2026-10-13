@@ -57,10 +57,10 @@ def test_masks_written_and_english_output():
     torch = pytest.importorskip("torch")
     cfg = load_config(mode="local", lang="en")
     if not torch.cuda.is_available() or not _vllm_up(cfg):
-        pytest.skip("需要 CUDA 和在跑的本地 vLLM")
+        pytest.skip("needs CUDA and a running local vLLM")
     samples = {s["id"]: s for s in holo_examples()}
     if "3947712380" not in samples:
-        pytest.skip("缺少 HoloGeo 样例图")
+        pytest.skip("HoloGeo sample images missing")
     from geoeg.pipeline import run
     res = run(samples["3947712380"]["image"], cfg)
     assert res["language"] == "en"

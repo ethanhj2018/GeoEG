@@ -32,10 +32,10 @@ def test_end_to_end_local():
     torch = pytest.importorskip("torch")
     cfg = load_config(mode="local")
     if not torch.cuda.is_available() or not _vllm_up(cfg):
-        pytest.skip("需要 CUDA 和在跑的本地 vLLM")
+        pytest.skip("needs CUDA and a running local vLLM")
     samples = {s["id"]: s for s in holo_examples()} if Path(os.path.expanduser("~/geoeg_refs/HoloGeo")).exists() else {}
     if not samples:
-        pytest.skip("缺少 HoloGeo 样例图")
+        pytest.skip("HoloGeo sample images missing")
     s = samples.get("36fd4851ae54d3ff") or next(iter(samples.values()))
     from geoeg.pipeline import run
     res = run(s["image"], cfg)

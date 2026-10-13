@@ -24,9 +24,9 @@ def load_config(path: str | os.PathLike | None = None, mode: str | None = None, 
         cfg["output_language"] = lang
     cfg.setdefault("output_language", "en")
     if cfg["output_language"] not in ("en", "zh"):
-        raise ConfigError(f"output_language 只能是 en 或 zh，收到：{cfg['output_language']!r}")
+        raise ConfigError(f"output_language must be en or zh, got: {cfg['output_language']!r}")
     if cfg["MODE"] not in ("local", "hybrid"):
-        raise ConfigError(f"MODE 只能是 local 或 hybrid，收到：{cfg['MODE']!r}")
+        raise ConfigError(f"MODE must be local or hybrid, got: {cfg['MODE']!r}")
     for k, v in cfg["paths"].items():
         p = Path(os.path.expanduser(v))
         cfg["paths"][k] = str(p if p.is_absolute() else ROOT / p)
@@ -46,7 +46,7 @@ def resolve_vlm(cfg: dict) -> dict:
     missing = [h[f"{k}_env"] for k, val in vals.items() if not val]
     if missing:
         raise ConfigError(
-            "hybrid 模式需要云端 API 配置，但 .env 里缺少：" + "、".join(missing)
-            + f"。请复制 {ROOT / '.env.example'} 为 .env 并填写，或改用 --mode local。")
+            "hybrid mode needs cloud API settings, but .env is missing: " + ", ".join(missing)
+            + f". Copy {ROOT / '.env.example'} to .env and fill it in, or use --mode local.")
     vals["base_url"] = vals["base_url"].rstrip("/")
     return vals

@@ -17,7 +17,7 @@ def _sample():
 def test_persistent_worker_matches_one_shot():
     cfg = load_config()
     if not Path(cfg["ocr"]["conda"]).exists() or _sample() is None:
-        pytest.skip("需要 geoeg-ocrtest 环境和样例图")
+        pytest.skip("needs the geoeg-ocrtest env and sample images")
     from geoeg.extract import ocr
     img = _sample()["image"]
     first = ocr._SERVER.request([img], cfg)                 # may include model start-up
