@@ -120,6 +120,8 @@ Results on the 200-image test split:
 
 Per-image errors, the tuning grid and the tuned parameters are in `geoeg/geoeg/eval/results/`. With 200 images the differences are within roughly ±3 percentage points, and the 7B VLM is the main bottleneck; stronger VLMs (via hybrid mode) are the natural next step.
 
+The full experiment report, with the error distribution, per-image comparisons, qualitative examples and the web demo, is in [reports/GeoEG_Experiment_Report.md](reports/GeoEG_Experiment_Report.md).
+
 ## Third-party components
 
 | Component | Use | Licence |
