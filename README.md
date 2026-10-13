@@ -99,6 +99,17 @@ python -m geoeg.eval.run_eval tune      # grid search on the dev split only
 python -m geoeg.eval.run_eval report    # test split only
 ```
 
+For every test image, the error is the great-circle (haversine) distance between the top-1 predicted coordinates and the true location where the photo was taken. The table reports:
+
+- **Median error**: the median of these distances over the 200 images (lower is better). Half of the predictions are closer than this, half are farther.
+- **1 km / 25 km / 200 km / 750 km / 2500 km** (Acc@X km): the percentage of images whose error is at most X km (higher is better). These are the standard geolocation thresholds, roughly street, city, region, country and continent level. For example, 31.5% at 25 km means 63 of the 200 images were placed within 25 km of the true location. An image without a prediction counts as a miss.
+
+The methods compared are:
+
+- **Qwen2.5-VL-7B direct prediction**: the VLM alone, asked once for coordinates (the same prompt as the web demo's Baseline engine).
+- **GeoCLIP alone**: the top-1 location from GeoCLIP image-to-GPS retrieval, with no VLM or evidence.
+- **GeoEG**: the full pipeline described above.
+
 Results on the 200-image test split:
 
 | Method | Median error | 1 km | 25 km | 200 km | 750 km | 2500 km |
